@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a090c">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2317111a'/%3E%3Ctext x='32' y='47' font-size='38' text-anchor='middle' fill='%23e6b45e'%3E%E2%99%A0%3C/text%3E%3C/svg%3E">
+<title>Liar's Poker — Texas Hold'em + Đạn</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="poker.css">
+</head>
+<body>
+<div class="bg" aria-hidden="true">
+  <i class="lamp l1"></i><i class="lamp l2"></i>
+  <i class="smoke s1"></i><i class="smoke s2"></i>
+</div>
+
+<!-- ============================ START ============================ -->
+<section id="screen-start" class="screen start-screen">
+  <div class="start-inner">
+    <div class="logo">
+      <div class="logo-kicker">TEXAS HOLD'EM · 8-SHOT REVOLVER</div>
+      <h1>LIAR'S <em>POKER</em></h1>
+      <p class="logo-sub">2 lá riêng · 5 lá chung · 2–4 người</p>
+    </div>
+
+    <div class="panel">
+      <div class="field">
+        <div class="flabel">Chế độ chơi</div>
+        <div class="seg wide" id="mode-seg">
+          <button type="button" class="seg-btn on" data-mode="solo">🤖 Chơi máy</button>
+          <button type="button" class="seg-btn" data-mode="pass">👥 Chuyền máy</button>
+          <button type="button" class="seg-btn" data-mode="online">🌐 Online</button>
+        </div>
+        <div class="fnote" id="mode-note">Bạn đấu với 1–3 bot Texas Hold'em.</div>
+      </div>
+
+      <div class="field" id="online-box" style="display:none">
+        <div class="flabel">Kiểu chơi online</div>
+        <div class="seg wide" id="online-role-seg">
+          <button type="button" class="seg-btn on" data-role="host">👑 Tạo phòng</button>
+          <button type="button" class="seg-btn" data-role="join">🔑 Vào phòng</button>
+        </div>
+        <div id="join-code-field" class="join-code hidden">
+          <input id="room-code-input" type="text" maxlength="5" autocomplete="off" spellcheck="false" placeholder="NHẬP MÃ PHÒNG">
+        </div>
+        <div class="fnote" id="online-note">Bạn là host. Gửi mã phòng cho bạn bè để họ vào.</div>
+      </div>
+
+      <div class="field two" id="players-box">
+        <div>
+          <div class="flabel">Số người</div>
+          <div class="seg" id="count-seg">
+            <button type="button" class="seg-btn" data-count="2">2</button>
+            <button type="button" class="seg-btn" data-count="3">3</button>
+            <button type="button" class="seg-btn on" data-count="4">4</button>
+          </div>
+        </div>
+        <div id="diff-box">
+          <div class="flabel">Bot khó</div>
+          <div class="seg" id="diff-seg">
+            <button type="button" class="seg-btn" data-diff="easy">Dễ</button>
+            <button type="button" class="seg-btn on" data-diff="normal">Vừa</button>
+            <button type="button" class="seg-btn" data-diff="hard">Khó</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="flabel" id="names-label">Tên của bạn</div>
+        <div id="name-inputs" class="name-inputs"></div>
+      </div>
+
+      <div class="field opts">
+        <label class="chk"><input type="checkbox" id="opt-sound" checked> Âm thanh</label>
+      </div>
+
+      <button type="button" id="btn-start" class="btn btn-gold btn-block">VÀO BÀN</button>
+      <button type="button" id="btn-rules-open" class="btn btn-ghost btn-block">LUẬT POKER + COMBO</button>
+      <a href="LiarPoker.html" class="link-back">← Về Liar's Deck (bài bịp)</a>
+    </div>
+
+    <div class="start-foot">SẢNH · CÙ LŨ · TỨ QUÝ · THÙNG PHÁ SẢNH</div>
+  </div>
+</section>
+
+<!-- ============================ TABLE ============================ -->
+<section id="screen-table" class="screen game-screen hidden">
+
+  <header class="topbar">
+    <div class="tb-group">
+      <span class="pill">Ván <b id="hand-no">1</b></span>
+      <span class="pill">Sống <b id="alive-no">4</b></span>
+      <span id="online-pill" class="pill online hidden" title="Phòng online">🌐 <b id="online-code">—</b></span>
+    </div>
+    <div class="tb-logo">LIAR'S POKER</div>
+    <div class="tb-group right">
+      <button type="button" id="btn-combo" class="icon-btn" title="Bộ bài">♠</button>
+      <button type="button" id="btn-log" class="icon-btn" title="Nhật ký">▤</button>
+      <button type="button" id="btn-leave-online" class="icon-btn hidden" title="Rời phòng">⎋</button>
+      <button type="button" id="btn-sound" class="icon-btn" title="Âm thanh">🔊</button>
+      <button type="button" id="btn-restart" class="icon-btn" title="Bàn mới">↺</button>
+    </div>
+  </header>
+
+  <main class="board poker-board">
+    <div class="table-wrap">
+      <div class="table poker-table">
+        <div id="seats" class="seats"></div>
+        <div class="poker-center">
+          <div id="community" class="community-row"></div>
+          <div id="bet-meter" class="bet-meter"></div>
+          <div id="bet-label" class="bet-label">MỨC CƯỢC · 1 VIÊN</div>
+          <div id="best-hand" class="best-hand">Bài của bạn: —</div>
+          <div id="showdown-banner" class="showdown-banner hidden"></div>
+        </div>
+      </div>
+    </div>
+
+    <aside class="poker-aside">
+      <div class="combo-panel">
+        <div class="combo-head">BỘ BÀI MẠNH → YẾU</div>
+        <div class="combo-list" id="combo-list"></div>
+        <div class="combo-note">A được tính là 1 trong sảnh A-2-3-4-5.</div>
+      </div>
+      <div class="logpanel poker-log">
+        <div class="log-head">DIỄN BIẾN</div>
+        <div id="log" class="log"></div>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="actionbar poker-actionbar">
+    <div class="ab-turn">
+      <div id="turn-text" class="turn-text">…</div>
+      <div id="poker-hint" class="poker-hint"></div>
+    </div>
+    <div class="ab-actions poker-actions">
+      <button type="button" id="btn-call" class="btn btn-play" disabled>THEO</button>
+      <button type="button" id="btn-fold" class="btn btn-liar" disabled>BỎ BÀI</button>
+      <button type="button" id="btn-allin" class="btn btn-allin" disabled>ALL-IN</button>
+      <button type="button" id="btn-swap" class="btn btn-swap" disabled>ĐỔI BÀI</button>
+      <button type="button" id="btn-coward" class="btn btn-coward" disabled>BỎ NHÁT</button>
+    </div>
+  </footer>
+
+  <div class="poker-hand-wrap">
+    <div id="mybet" class="poker-mybet">BẠN CƯỢC 1 VIÊN</div>
+    <div id="hole" class="poker-hole"></div>
+  </div>
+
+  <!-- pass -->
+  <div id="pass-overlay" class="overlay hidden">
+    <div class="pass-card">
+      <div class="pass-avatar" id="pass-avatar">🎩</div>
+      <div class="pass-kicker">CHUYỀN MÁY</div>
+      <h2 id="pass-name">Người chơi</h2>
+      <p>Đưa máy cho người này.<br>Những người khác quay mặt đi nhé!</p>
+      <button type="button" id="btn-pass-view" class="btn btn-gold">XEM BÀI CỦA TÔI</button>
+    </div>
+  </div>
+
+  <!-- roulette -->
+  <div id="roulette" class="overlay hidden">
+    <div class="roul">
+      <div class="roul-kicker">ROULETTE NGA · 8 VIÊN</div>
+      <div class="roul-name" id="roul-name">…</div>
+      <div class="roul-ring poker-ring" id="roul-ring">
+        <span class="chamber" style="--a:0deg"></span>
+        <span class="chamber" style="--a:45deg"></span>
+        <span class="chamber" style="--a:90deg"></span>
+        <span class="chamber" style="--a:135deg"></span>
+        <span class="chamber" style="--a:180deg"></span>
+        <span class="chamber" style="--a:225deg"></span>
+        <span class="chamber" style="--a:270deg"></span>
+        <span class="chamber" style="--a:315deg"></span>
+        <span class="roul-hub"></span>
+      </div>
+      <div class="roul-count" id="roul-count">3 / 8 VIÊN</div>
+      <div id="roul-card" class="roul-card">?</div>
+      <div id="roul-text" class="roul-text">Đang quay…</div>
+    </div>
+  </div>
+
+  <!-- confirm -->
+  <div id="confirm" class="overlay hidden">
+    <div class="confirm-box">
+      <div class="confirm-kicker">XÁC NHẬN</div>
+      <h2 id="confirm-title">…</h2>
+      <p id="confirm-text">…</p>
+      <div class="confirm-actions">
+        <button type="button" id="btn-confirm-ok" class="btn btn-liar">ĐỒNG Ý</button>
+        <button type="button" id="btn-confirm-cancel" class="btn btn-ghost">HỦY</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- swap -->
+  <div id="swap" class="overlay hidden">
+    <div class="swap-box">
+      <div class="confirm-kicker">ĐỔI BÀI · 1 LẦN MỖI VÁN</div>
+      <h2>Chọn 1 lá của bạn và 1 lá mới</h2>
+      <p class="swap-sub">Lá cũ sẽ bị bỏ. Bạn vẫn được theo hoặc bỏ sau khi đổi.</p>
+      <div class="swap-row">
+        <div class="swap-col">
+          <div class="swap-cap">BÀI CỦA BẠN</div>
+          <div id="swap-hole" class="swap-cards"></div>
+        </div>
+        <div class="swap-col">
+          <div class="swap-cap">3 LÁ ĐƯỢC CHỌN</div>
+          <div id="swap-offers" class="swap-cards"></div>
+        </div>
+      </div>
+      <div class="swap-actions">
+        <button type="button" id="btn-swap-ok" class="btn btn-gold" disabled>ĐỔI</button>
+        <button type="button" id="btn-swap-cancel" class="btn btn-ghost">HỦY</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- game over -->
+  <div id="gameover" class="overlay hidden">
+    <div class="over-card">
+      <div class="over-kicker">KẾT THÚC</div>
+      <div class="over-avatar" id="over-avatar">🏆</div>
+      <h2 id="over-name">…</h2>
+      <p id="over-sub">…</p>
+      <p id="over-note" class="over-note hidden"></p>
+      <div class="over-actions">
+        <button type="button" id="btn-again" class="btn btn-gold">CHƠI LẠI</button>
+        <button type="button" id="btn-menu" class="btn btn-ghost">VỀ MENU</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ LOBBY ============================ -->
+<div id="lobby" class="overlay hidden">
+  <div class="lobby-box">
+    <div class="lobby-kicker">PHÒNG POKER ONLINE</div>
+    <div class="room-row">
+      <div class="room-left">
+        <div class="room-cap">MÃ PHÒNG</div>
+        <div class="room-code" id="room-code">—</div>
+      </div>
+      <button type="button" id="btn-copy-code" class="btn btn-ghost btn-sm">COPY</button>
+    </div>
+    <div class="lobby-hint" id="lobby-hint">Đang kết nối…</div>
+    <div class="lobby-players" id="lobby-players"></div>
+    <div class="lobby-status" id="lobby-status"></div>
+    <div class="lobby-actions">
+      <button type="button" id="btn-lobby-start" class="btn btn-gold">BẮT ĐẦU</button>
+      <button type="button" id="btn-lobby-leave" class="btn btn-ghost">RỜI PHÒNG</button>
+    </div>
+    <div class="lobby-foot">Host là máy của người tạo phòng. Dữ liệu bàn chơi đi trực tiếp giữa các máy.</div>
+  </div>
+</div>
+
+<!-- ============================ COMBO MODAL ============================ -->
+<div id="combo-modal" class="overlay hidden">
+  <div class="rules-box combo-box">
+    <button type="button" id="btn-combo-close" class="x" title="Đóng">✕</button>
+    <h2>BỘ BÀI POKER</h2>
+    <div id="combo-modal-list" class="combo-modal-list"></div>
+    <p class="combo-note">A được tính là 1 trong sảnh A-2-3-4-5.</p>
+  </div>
+</div>
+
+<!-- ============================ RULES ============================ -->
+<div id="rules" class="overlay hidden">
+  <div class="rules-box">
+    <button type="button" id="btn-rules-close" class="x" title="Đóng">✕</button>
+    <h2>LUẬT LIAR'S POKER</h2>
+    <div class="rules-body">
+      <h3>Bài</h3>
+      <p>Mỗi người 2 lá riêng. 5 lá chung lật dần: <b>flop</b> 3 lá, <b>turn</b> 1 lá,
+         <b>river</b> 1 lá. Ghép 2 lá riêng + 5 lá chung để lấy 5 lá mạnh nhất.</p>
+
+      <h3>Đạn và mức cược</h3>
+      <p>Mỗi người bắt đầu với <b>1 viên</b> (mức 1). <b>Theo</b> = đặt thêm 1 viên,
+         mức cược tăng lên. Mức 2 lật flop, mức 3 lật turn, mức 4 lật river,
+         mức 5 là <b>showdown</b>.</p>
+      <p><b>Bỏ bài</b>: chơi roulette với đúng số viên đang cược. Từ vòng flop trở đi
+         mới được bỏ thường.</p>
+      <p><b>Bỏ nhát</b> (Coward's Fold): 1 lần mỗi bàn, chỉ vòng đầu, bắn với
+         <b>1 viên</b> (12.5%).</p>
+
+      <h3>All-in</h3>
+      <p>Đặt <b>8 viên</b>. Những người còn lại chọn <b>theo all-in</b> (8 viên) hoặc
+         <b>bỏ</b> (bắn với số viên hiện có). Nếu ít nhất 2 người theo, lật hết bài
+         và showdown; người thua bắn <b>8 viên</b>.</p>
+      <p>8 viên vẫn có <b>5% kẹt đạn</b> (sống sót).</p>
+
+      <h3>Đổi bài</h3>
+      <p>1 lần mỗi ván tay, trước khi lật hết 5 lá chung. Bạn được xem 3 lá,
+         chọn 1 lá để thay cho 1 trong 2 lá riêng. Không mất lượt — vẫn theo/bỏ sau đó.</p>
+
+      <h3>Showdown</h3>
+      <p>Ai có 5 lá mạnh nhất thì thắng ván và an toàn. <b>Tất cả những người còn lại
+         ở showdown</b> bắn roulette với mức cược cuối (5 hoặc 8 viên).</p>
+      <p>Trúng đạn là chết. Sống sót cuối cùng thắng bàn.</p>
+
+      <h3>Bảng combo</h3>
+      <p>Thùng phá sảnh &gt; Tứ quý &gt; Cù lũ &gt; Thùng &gt; Sảnh &gt; Bộ ba &gt;
+         Hai đôi &gt; Một đôi &gt; Mậu thầu. Xem panel bên phải hoặc nút ♠.</p>
+    </div>
+    <button type="button" id="btn-rules-ok" class="btn btn-gold btn-block">ĐÃ HIỂU</button>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="poker_engine.js"></script>
+<script src="poker_bots.js"></script>
+<script src="vendor/mqtt.min.js"></script>
+<script src="poker_app.js"></script>
+</body>
+</html>

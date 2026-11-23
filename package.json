@@ -1,0 +1,23 @@
+{
+  "name": "liars-poker",
+  "version": "1.0.0",
+  "description": "Liar's Bar - Liar's Deck & Liar's Poker Web Game",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test_engine.js && node poker_test.js",
+    "build": "python build_single.py && python build_poker.py"
+  },
+  "keywords": [
+    "liars-poker",
+    "liars-deck",
+    "game",
+    "card-game",
+    "multiplayer"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
